@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: Raani
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/raani
+
+server:
+  port: 8080
