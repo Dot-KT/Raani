@@ -1,6 +1,7 @@
 package Raani.Raani.controller;
 
-import Raani.Raani.model.Customer;
+import Raani.Raani.dto.CustomerRequest;
+import Raani.Raani.dto.CustomerResponse;
 import Raani.Raani.service.CustomerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -22,7 +23,7 @@ public class CustomerController {
 
     @GetMapping
     @Operation(summary = "List all customers", description = "Returns every registered customer.")
-    public List<Customer> getAll() {
+    public List<CustomerResponse> getAll() {
         return customerService.getAllCustomers();
     }
 
@@ -31,12 +32,10 @@ public class CustomerController {
             @ApiResponse(responseCode = "200", description = "Customer found"),
             @ApiResponse(responseCode = "404", description = "Customer not found")
     })
-    public ResponseEntity<Customer> getById(
+    public CustomerResponse getById(
             @Parameter(description = "Customer ID", example = "665f1a2b3c4d5e6f70890abc")
             @PathVariable String id) {
-        return customerService.getCustomerById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        return customerService.getCustomerById(id);
     }
 
     @GetMapping("/phone/{phoneNumber}")
@@ -44,28 +43,26 @@ public class CustomerController {
             @ApiResponse(responseCode = "200", description = "Customer found"),
             @ApiResponse(responseCode = "404", description = "No customer with that phone number")
     })
-    public ResponseEntity<Customer> getByPhone(
+    public CustomerResponse getByPhone(
             @Parameter(description = "WhatsApp phone number", example = "2348012345678")
             @PathVariable String phoneNumber) {
-        return customerService.getCustomerByPhone(phoneNumber)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        return customerService.getCustomerByPhone(phoneNumber);
     }
 
     @PostMapping
     @Operation(summary = "Register a new customer",
             description = "Creates a new customer. `registeredAt` and `conversationState` are set automatically.")
     @ApiResponse(responseCode = "200", description = "Customer created")
-    public Customer create(@RequestBody Customer customer) {
-        return customerService.createCustomer(customer);
+    public CustomerResponse create(@RequestBody CustomerRequest request) {
+        return customerService.createCustomer(request);
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "Update a customer", description = "Partial update — only non-null fields are applied.")
-    public Customer update(
+    public CustomerResponse update(
             @Parameter(description = "Customer ID") @PathVariable String id,
-            @RequestBody Customer customer) {
-        return customerService.updateCustomer(id, customer);
+            @RequestBody CustomerRequest request) {
+        return customerService.updateCustomer(id, request);
     }
 
     @DeleteMapping("/{id}")
