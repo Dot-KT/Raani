@@ -40,17 +40,17 @@ public class DeliveryController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/customer/{customerId}")
-    @Operation(summary = "List deliveries for a customer", description = "Returns all orders placed by a specific customer.")
-    public List<Delivery> getByCustomer(
-            @Parameter(description = "Customer ID") @PathVariable String customerId) {
-        return deliveryService.getDeliveriesByCustomer(customerId);
+    @GetMapping("/customer/{customerPhone}")
+    @Operation(summary = "List deliveries for a customer", description = "Returns all orders placed by a specific customer phone number.")
+    public List<Delivery> getByCustomerPhone(
+            @Parameter(description = "Customer WhatsApp phone number") @PathVariable String customerPhone) {
+        return deliveryService.getDeliveriesByCustomerPhone(customerPhone);
     }
 
     @PostMapping
     @Operation(summary = "Place a new order",
-            description = "Creates a delivery. Only `customerId`, `itemId`, and `quantity` are required — " +
-                    "item name, price, total, status, and timestamps are set automatically.")
+            description = "Creates a delivery. Only `customerPhone`, `customerName`, `itemId`, and `quantity` are required — " +
+                    "item name, price, measurement, total, status, and timestamps are set automatically.")
     @ApiResponse(responseCode = "200", description = "Delivery created")
     public Delivery create(@RequestBody Delivery delivery) {
         return deliveryService.createDelivery(delivery);

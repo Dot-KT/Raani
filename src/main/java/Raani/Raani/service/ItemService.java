@@ -40,6 +40,7 @@ public class ItemService {
                     if (updated.getDescription() != null) existing.setDescription(updated.getDescription());
                     if (updated.getPrice() != null) existing.setPrice(updated.getPrice());
                     if (updated.getAvailable() != null) existing.setAvailable(updated.getAvailable());
+                    if (updated.getMeasurement() != null) existing.setMeasurement(updated.getMeasurement());
                     return itemRepository.save(existing);
                 })
                 .orElseThrow(() -> new RuntimeException("Item not found with id: " + id));

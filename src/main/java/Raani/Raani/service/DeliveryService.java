@@ -26,8 +26,8 @@ public class DeliveryService {
         return deliveryRepository.findById(id);
     }
 
-    public List<Delivery> getDeliveriesByCustomer(String customerId) {
-        return deliveryRepository.findByCustomerId(customerId);
+    public List<Delivery> getDeliveriesByCustomerPhone(String customerPhone) {
+        return deliveryRepository.findByCustomerPhone(customerPhone);
     }
 
     public Delivery createDelivery(Delivery delivery) {
@@ -37,6 +37,7 @@ public class DeliveryService {
 
         delivery.setItemName(item.getName());
         delivery.setItemPrice(item.getPrice());
+        delivery.setMeasurement(item.getMeasurement());
         delivery.setTotalPrice(item.getPrice() * delivery.getQuantity());
         delivery.setStatus(DeliveryStatus.PLACED);
         delivery.setOrderedAt(LocalDateTime.now());
