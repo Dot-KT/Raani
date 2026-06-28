@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface DeliveryRepository extends MongoRepository<Delivery, String> {
 
-    List<Delivery> findByCustomerId(String customerId);
+    List<Delivery> findByCustomerPhone(String customerPhone);
 
     List<Delivery> findByOrderedAtBetween(LocalDateTime start, LocalDateTime end);
 }

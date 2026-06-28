@@ -1,9 +1,8 @@
 spring:
   application:
     name: Raani
-  data:
-    mongodb:
-      uri: mongodb://localhost:27017/raani
+  mongodb:
+    uri: "mongodb+srv://raa:raani@raani.mbifzzw.mongodb.net/raani?appName=raani"
 
 server:
   port: 8080

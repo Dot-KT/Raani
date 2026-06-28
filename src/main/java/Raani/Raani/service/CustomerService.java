@@ -1,5 +1,8 @@
 package Raani.Raani.service;
 
+import Raani.Raani.dto.CustomerRequest;
+import Raani.Raani.dto.CustomerResponse;
+import Raani.Raani.exception.CustomerNotFoundException;
 import Raani.Raani.model.Customer;
 import Raani.Raani.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
@@ -7,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -15,37 +17,44 @@ public class CustomerService {
 
     private final CustomerRepository customerRepository;
 
-    public List<Customer> getAllCustomers() {
-        return customerRepository.findAll();
+    public List<CustomerResponse> getAllCustomers() {
+        return customerRepository.findAll().stream().map(CustomerResponse::from).toList();
     }
 
-    public Optional<Customer> getCustomerById(String id) {
-        return customerRepository.findById(id);
+    public CustomerResponse getCustomerById(String id) {
+        return CustomerResponse.from(findCustomerOrThrow(id));
     }
 
-    public Optional<Customer> getCustomerByPhone(String phoneNumber) {
-        return customerRepository.findByPhoneNumber(phoneNumber);
+    public CustomerResponse getCustomerByPhone(String phoneNumber) {
+        return CustomerResponse.from(customerRepository.findByPhoneNumber(phoneNumber)
+                .orElseThrow(() -> CustomerNotFoundException.byPhone(phoneNumber)));
     }
 
-    public Customer createCustomer(Customer customer) {
-        customer.setRegisteredAt(LocalDateTime.now());
+    public CustomerResponse createCustomer(CustomerRequest request) {
+        Customer customer = new Customer();
+        customer.setName(request.name());
+        customer.setPhoneNumber(request.phoneNumber());
+        customer.setAddress(request.address());
         customer.setConversationState("NEW");
-        return customerRepository.save(customer);
+        customer.setRegisteredAt(LocalDateTime.now());
+        return CustomerResponse.from(customerRepository.save(customer));
     }
 
-    public Customer updateCustomer(String id, Customer updated) {
-        return customerRepository.findById(id)
-                .map(existing -> {
-                    if (updated.getName() != null) existing.setName(updated.getName());
-                    if (updated.getPhoneNumber() != null) existing.setPhoneNumber(updated.getPhoneNumber());
-                    if (updated.getAddress() != null) existing.setAddress(updated.getAddress());
-                    if (updated.getConversationState() != null) existing.setConversationState(updated.getConversationState());
-                    return customerRepository.save(existing);
-                })
-                .orElseThrow(() -> new RuntimeException("Customer not found with id: " + id));
+    public CustomerResponse updateCustomer(String id, CustomerRequest request) {
+        Customer existing = findCustomerOrThrow(id);
+        if (request.name() != null) existing.setName(request.name());
+        if (request.phoneNumber() != null) existing.setPhoneNumber(request.phoneNumber());
+        if (request.address() != null) existing.setAddress(request.address());
+        return CustomerResponse.from(customerRepository.save(existing));
     }
 
     public void deleteCustomer(String id) {
+        findCustomerOrThrow(id);
         customerRepository.deleteById(id);
+    }
+
+    private Customer findCustomerOrThrow(String id) {
+        return customerRepository.findById(id)
+                .orElseThrow(() -> CustomerNotFoundException.byId(id));
     }
 }

@@ -1,8 +1,9 @@
 package Raani.Raani.controller;
 
+import Raani.Raani.dto.DeliveryRequest;
+import Raani.Raani.dto.DeliveryResponse;
 import Raani.Raani.dto.UpdateLocationRequest;
 import Raani.Raani.dto.UpdateStatusRequest;
-import Raani.Raani.model.Delivery;
 import Raani.Raani.service.DeliveryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -24,7 +25,7 @@ public class DeliveryController {
 
     @GetMapping
     @Operation(summary = "List all deliveries", description = "Returns every delivery/order in the system.")
-    public List<Delivery> getAll() {
+    public List<DeliveryResponse> getAll() {
         return deliveryService.getAllDeliveries();
     }
 
@@ -33,45 +34,43 @@ public class DeliveryController {
             @ApiResponse(responseCode = "200", description = "Delivery found"),
             @ApiResponse(responseCode = "404", description = "Delivery not found")
     })
-    public ResponseEntity<Delivery> getById(
+    public DeliveryResponse getById(
             @Parameter(description = "Delivery ID") @PathVariable String id) {
-        return deliveryService.getDeliveryById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        return deliveryService.getDeliveryById(id);
     }
 
-    @GetMapping("/customer/{customerId}")
-    @Operation(summary = "List deliveries for a customer", description = "Returns all orders placed by a specific customer.")
-    public List<Delivery> getByCustomer(
-            @Parameter(description = "Customer ID") @PathVariable String customerId) {
-        return deliveryService.getDeliveriesByCustomer(customerId);
+    @GetMapping("/customer/{customerPhone}")
+    @Operation(summary = "List deliveries for a customer", description = "Returns all orders placed by a specific customer phone number.")
+    public List<DeliveryResponse> getByCustomerPhone(
+            @Parameter(description = "Customer WhatsApp phone number") @PathVariable String customerPhone) {
+        return deliveryService.getDeliveriesByCustomerPhone(customerPhone);
     }
 
     @PostMapping
     @Operation(summary = "Place a new order",
-            description = "Creates a delivery. Only `customerId`, `itemId`, and `quantity` are required — " +
-                    "item name, price, total, status, and timestamps are set automatically.")
+            description = "Creates a delivery. Only `customerPhone`, `customerName`, `itemId`, and `quantity` are required — " +
+                    "item name, price, measurement, total, status, and timestamps are set automatically.")
     @ApiResponse(responseCode = "200", description = "Delivery created")
-    public Delivery create(@RequestBody Delivery delivery) {
-        return deliveryService.createDelivery(delivery);
+    public DeliveryResponse create(@RequestBody DeliveryRequest request) {
+        return deliveryService.createDelivery(request);
     }
 
     @PutMapping("/{id}/status")
     @Operation(summary = "Update delivery status",
             description = "Set the delivery status. Valid values: PLACED, PROCESSING, IN_TRANSIT, DELIVERED, CANCELLED.")
-    public Delivery updateStatus(
+    public DeliveryResponse updateStatus(
             @Parameter(description = "Delivery ID") @PathVariable String id,
             @RequestBody UpdateStatusRequest request) {
-        return deliveryService.updateStatus(id, request.getStatus());
+        return deliveryService.updateStatus(id, request.status());
     }
 
     @PutMapping("/{id}/location")
     @Operation(summary = "Update delivery location",
             description = "Set the current physical location of the delivery. Updated manually by admin.")
-    public Delivery updateLocation(
+    public DeliveryResponse updateLocation(
             @Parameter(description = "Delivery ID") @PathVariable String id,
             @RequestBody UpdateLocationRequest request) {
-        return deliveryService.updateLocation(id, request.getLocation());
+        return deliveryService.updateLocation(id, request.location());
     }
 
     @DeleteMapping("/{id}")

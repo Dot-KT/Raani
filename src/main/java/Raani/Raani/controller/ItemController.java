@@ -1,6 +1,7 @@
 package Raani.Raani.controller;
 
-import Raani.Raani.model.Item;
+import Raani.Raani.dto.ItemRequest;
+import Raani.Raani.dto.ItemResponse;
 import Raani.Raani.service.ItemService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -22,13 +23,13 @@ public class ItemController {
 
     @GetMapping
     @Operation(summary = "List all items", description = "Returns every item in the catalog, including unavailable ones.")
-    public List<Item> getAll() {
+    public List<ItemResponse> getAll() {
         return itemService.getAllItems();
     }
 
     @GetMapping("/available")
     @Operation(summary = "List available items", description = "Returns only items where `available` is true. This is what customers see on WhatsApp.")
-    public List<Item> getAvailable() {
+    public List<ItemResponse> getAvailable() {
         return itemService.getAvailableItems();
     }
 
@@ -37,26 +38,24 @@ public class ItemController {
             @ApiResponse(responseCode = "200", description = "Item found"),
             @ApiResponse(responseCode = "404", description = "Item not found")
     })
-    public ResponseEntity<Item> getById(
+    public ItemResponse getById(
             @Parameter(description = "Item ID") @PathVariable String id) {
-        return itemService.getItemById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        return itemService.getItemById(id);
     }
 
     @PostMapping
     @Operation(summary = "Add a new item", description = "Creates a new catalog item. `available` defaults to true if not provided.")
     @ApiResponse(responseCode = "200", description = "Item created")
-    public Item create(@RequestBody Item item) {
-        return itemService.createItem(item);
+    public ItemResponse create(@RequestBody ItemRequest request) {
+        return itemService.createItem(request);
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "Update an item", description = "Partial update — only non-null fields are applied.")
-    public Item update(
+    public ItemResponse update(
             @Parameter(description = "Item ID") @PathVariable String id,
-            @RequestBody Item item) {
-        return itemService.updateItem(id, item);
+            @RequestBody ItemRequest request) {
+        return itemService.updateItem(id, request);
     }
 
     @DeleteMapping("/{id}")

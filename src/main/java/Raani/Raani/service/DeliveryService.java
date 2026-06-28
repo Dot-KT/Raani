@@ -1,5 +1,8 @@
 package Raani.Raani.service;
 
+import Raani.Raani.dto.DeliveryRequest;
+import Raani.Raani.dto.DeliveryResponse;
+import Raani.Raani.exception.DeliveryNotFoundException;
 import Raani.Raani.model.Delivery;
 import Raani.Raani.model.DeliveryStatus;
 import Raani.Raani.model.Item;
@@ -9,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -18,53 +20,58 @@ public class DeliveryService {
     private final DeliveryRepository deliveryRepository;
     private final ItemService itemService;
 
-    public List<Delivery> getAllDeliveries() {
-        return deliveryRepository.findAll();
+    public List<DeliveryResponse> getAllDeliveries() {
+        return deliveryRepository.findAll().stream().map(DeliveryResponse::from).toList();
     }
 
-    public Optional<Delivery> getDeliveryById(String id) {
-        return deliveryRepository.findById(id);
+    public DeliveryResponse getDeliveryById(String id) {
+        return DeliveryResponse.from(findDeliveryOrThrow(id));
     }
 
-    public List<Delivery> getDeliveriesByCustomer(String customerId) {
-        return deliveryRepository.findByCustomerId(customerId);
+    public List<DeliveryResponse> getDeliveriesByCustomerPhone(String customerPhone) {
+        return deliveryRepository.findByCustomerPhone(customerPhone).stream()
+                .map(DeliveryResponse::from).toList();
     }
 
-    public Delivery createDelivery(Delivery delivery) {
-        // Look up item to denormalize name and price
-        Item item = itemService.getItemById(delivery.getItemId())
-                .orElseThrow(() -> new RuntimeException("Item not found with id: " + delivery.getItemId()));
+    public DeliveryResponse createDelivery(DeliveryRequest request) {
+        Item item = itemService.findItemOrThrow(request.itemId());
 
+        Delivery delivery = new Delivery();
+        delivery.setCustomerPhone(request.customerPhone());
+        delivery.setCustomerName(request.customerName());
+        delivery.setItemId(request.itemId());
         delivery.setItemName(item.getName());
         delivery.setItemPrice(item.getPrice());
-        delivery.setTotalPrice(item.getPrice() * delivery.getQuantity());
+        delivery.setMeasurement(item.getMeasurement());
+        delivery.setQuantity(request.quantity());
+        delivery.setTotalPrice(item.getPrice() * request.quantity());
         delivery.setStatus(DeliveryStatus.PLACED);
         delivery.setOrderedAt(LocalDateTime.now());
         delivery.setUpdatedAt(LocalDateTime.now());
-        return deliveryRepository.save(delivery);
+        return DeliveryResponse.from(deliveryRepository.save(delivery));
     }
 
-    public Delivery updateStatus(String id, DeliveryStatus status) {
-        return deliveryRepository.findById(id)
-                .map(delivery -> {
-                    delivery.setStatus(status);
-                    delivery.setUpdatedAt(LocalDateTime.now());
-                    return deliveryRepository.save(delivery);
-                })
-                .orElseThrow(() -> new RuntimeException("Delivery not found with id: " + id));
+    public DeliveryResponse updateStatus(String id, DeliveryStatus status) {
+        Delivery delivery = findDeliveryOrThrow(id);
+        delivery.setStatus(status);
+        delivery.setUpdatedAt(LocalDateTime.now());
+        return DeliveryResponse.from(deliveryRepository.save(delivery));
     }
 
-    public Delivery updateLocation(String id, String location) {
-        return deliveryRepository.findById(id)
-                .map(delivery -> {
-                    delivery.setCurrentLocation(location);
-                    delivery.setUpdatedAt(LocalDateTime.now());
-                    return deliveryRepository.save(delivery);
-                })
-                .orElseThrow(() -> new RuntimeException("Delivery not found with id: " + id));
+    public DeliveryResponse updateLocation(String id, String location) {
+        Delivery delivery = findDeliveryOrThrow(id);
+        delivery.setCurrentLocation(location);
+        delivery.setUpdatedAt(LocalDateTime.now());
+        return DeliveryResponse.from(deliveryRepository.save(delivery));
     }
 
     public void deleteDelivery(String id) {
+        findDeliveryOrThrow(id);
         deliveryRepository.deleteById(id);
+    }
+
+    private Delivery findDeliveryOrThrow(String id) {
+        return deliveryRepository.findById(id)
+                .orElseThrow(() -> new DeliveryNotFoundException(id));
     }
 }

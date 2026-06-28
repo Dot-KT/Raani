@@ -16,8 +16,11 @@ public class Delivery {
     @Schema(description = "Unique delivery ID (auto-generated)", example = "665f1a2b3c4d5e6f70890fed", accessMode = Schema.AccessMode.READ_ONLY)
     private String id;
 
-    @Schema(description = "ID of the customer who placed the order", example = "665f1a2b3c4d5e6f70890abc", requiredMode = Schema.RequiredMode.REQUIRED)
-    private String customerId;
+    @Schema(description = "Customer's WhatsApp phone number", example = "+2348012345678", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String customerPhone;
+
+    @Schema(description = "Customer's WhatsApp name", example = "Aisha", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String customerName;
 
     @Schema(description = "ID of the purchased item", example = "665f1a2b3c4d5e6f70890def", requiredMode = Schema.RequiredMode.REQUIRED)
     private String itemId;
@@ -28,7 +31,10 @@ public class Delivery {
     @Schema(description = "Price of the item at time of purchase (auto-filled)", example = "45000.00", accessMode = Schema.AccessMode.READ_ONLY)
     private Double itemPrice;
 
-    @Schema(description = "Number of units ordered", example = "2", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "Unit of measurement (auto-filled from item)", example = "KG", accessMode = Schema.AccessMode.READ_ONLY)
+    private Measurement measurement;
+
+    @Schema(description = "Quantity ordered (in the item's unit of measurement)", example = "2", requiredMode = Schema.RequiredMode.REQUIRED)
     private Integer quantity;
 
     @Schema(description = "Total price (itemPrice × quantity, auto-calculated)", example = "90000.00", accessMode = Schema.AccessMode.READ_ONLY)

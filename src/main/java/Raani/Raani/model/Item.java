@@ -25,4 +25,7 @@ public class Item {
 
     @Schema(description = "Whether the item is currently available for purchase (defaults to true)", example = "true")
     private Boolean available;
+
+    @Schema(description = "Unit of measurement for this item", example = "KG", requiredMode = Schema.RequiredMode.REQUIRED)
+    private Measurement measurement;
 }
