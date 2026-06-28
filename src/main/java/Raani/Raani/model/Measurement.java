@@ -2,5 +2,7 @@ package Raani.Raani.model;
 
 public enum Measurement {
     KG,
-    PAINT
+    PAINT,
+    BIG,
+    SMALL
 }
