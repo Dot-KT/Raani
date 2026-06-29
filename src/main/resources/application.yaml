@@ -2,7 +2,7 @@ spring:
   application:
     name: Raani
   mongodb:
-    uri: "mongodb+srv://raa:raani@raani.mbifzzw.mongodb.net/raani?appName=raani"
+    uri: ${MONGODB_URI}
 
 server:
-  port: 8080
+  port: ${PORT:8080}
