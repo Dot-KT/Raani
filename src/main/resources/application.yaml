@@ -3,6 +3,21 @@ spring:
     name: Raani
   mongodb:
     uri: ${MONGODB_URI}
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: 7devanle@gmail.com
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+jwt:
+  secret: ${JWT_SECRET}
+  expiration-ms: 86400000
 
 server:
   port: ${PORT:8080}
