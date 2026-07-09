@@ -22,4 +22,4 @@ jwt:
   expiration-ms: 86400000
 
 server:
-  port: 8081
+  port: ${PORT:8080}
