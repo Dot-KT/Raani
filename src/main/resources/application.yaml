@@ -22,7 +22,7 @@ jwt:
   expiration-ms: 86400000
 
 whatsapp:
-  verify-token: ${WHATSAPP_VERIFY_TOKEN:raani_whatsapp_verify_2026}
+  verify-token: ${WHATSAPP_VERIFY_TOKEN}
 
 server:
   port: ${PORT:8080}
